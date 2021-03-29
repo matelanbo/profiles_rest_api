@@ -7,15 +7,63 @@ from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.renderers import TemplateHTMLRenderer
 
+
+from django.shortcuts import render
+from django.http import HttpResponse
 from profiles_api import serializers
 from profiles_api import models
 from profiles_api import permissions
 
 
+import matplotlib.pyplot as plt
+import networkx as nx
+import os
+
+def gen_mat(request):
+    edges = []
+    enzymes = []
+    rcount = 1
+    species = set()
+    react = set()
+
+    with open(file_path,"r") as f:
+        for line in f:
+            reaction = f'R{rcount}'
+            react.add(str(reaction))
+            num = line.split()
+            edges.append((num[0], str(reaction)))
+            species.add(num[0])
+            edges.append((num[1], str(reaction)))
+            species.add(num[1])
+            edges.append((str(reaction), num[3]))
+            species.add(num[3])
+            enzymes.append((num[2], str(reaction)))
+
+            rcount += 1
+    f.close()
+    plt.rcParams['figure.figsize'] = (30.0, 22.0)
+    G=nx.DiGraph()
+    G.add_edges_from(edges + enzymes)
+    shells = [react, species]
+    pos = nx.shell_layout(G,shells)
+    nx.draw_networkx_nodes(G, pos, nodelist=react,node_size=300,node_shape='s',node_color='r')
+    nx.draw_networkx_nodes(G, pos, nodelist=species,node_size=900,node_shape='o')
+    nx.draw_networkx_edges(G, pos, edgelist=edges, width=1,arrowstyle='->',arrowsize=40)
+    nx.draw_networkx_edges(G, pos, edgelist=enzymes,width=1,
+                           alpha=0.5, edge_color='g', style='dashed')
+    nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+    response=HttpResponse(content_type='image/png')
+    plt.savefig(response)
+    return response
+
+
+
 class HelloApiView(APIView):
     """Test API View"""
     serializer_class = serializers.HelloSerializer
+    renderer_classes = (TemplateHTMLRenderer,)
 
     def get(self, request, format=None):
         """Returns a list of APIView features"""
@@ -26,7 +74,7 @@ class HelloApiView(APIView):
             'Is mapped manually to URLs',
         ]
 
-        return Response({'message':'Hello!', 'an_apiview': an_apiview})
+        return Response({'user': 'qianqian'}, template_name='profiles_api/hellopage.html')
 
     def post(self, request):
         """Creat a hello message with our name"""
