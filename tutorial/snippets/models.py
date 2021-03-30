@@ -34,3 +34,14 @@ class Snippet(models.Model):
 
     class Meta:
         ordering = ('created',)
+
+
+class ReactionNetworks(models.Model):
+    network = models.CharField(max_length = 20)
+    network_image = models.CharField(max_length = 20)
+    network_text = models.CharField(max_length = 20)
+
+
+#class ReactionNetwork(models.Model):
+#    network = models.ForeignKey(ReactionNetworks, on_delete=models.CASCADE)
+#    content = models.TextField()

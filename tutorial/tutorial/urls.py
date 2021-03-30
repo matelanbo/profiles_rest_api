@@ -24,6 +24,12 @@ from snippets import views
 
 urlpatterns = format_suffix_patterns([
 #    url(r'^$', views.api_root),
+    url(r'^snippets/network/$',
+    views.NetworkList.as_view(),
+    name='reactionnetworks-detail'),
+    url(r'^snippets/network/(?P<pk>[0-9]+)/net/$',
+    views.ReadReactionFile.as_view(),
+    name='readreaction'),
     url(r'^snippets/$',
         views.SnippetList.as_view(),
         name='snippet-list'),

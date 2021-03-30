@@ -1,5 +1,5 @@
-from snippets.models import Snippet
-from snippets.serializers import SnippetSerializer
+from snippets.models import Snippet, ReactionNetworks
+from snippets.serializers import SnippetSerializer, ReactionNetworksSerializer
 from rest_framework import generics
 from django.contrib.auth.models import User
 from snippets.serializers import UserSerializer
@@ -31,13 +31,15 @@ class SnippetHighlight(APIView):
 #    renderer_classes = (TemplateHTMLRenderer,)
 
     def get(self, request, *args, **kwargs):
+        net = kwargs['pk'].zfill(5)
+        file = 'React_N_Real' + net + '.txt'
         edges = []
         enzymes = []
         rcount = 1
         species = set()
         react = set()
         module_dir = os.path.dirname(__file__)
-        file_path = os.path.join(module_dir, 'React_N_Real00988.txt')
+        file_path = os.path.join(module_dir, file)
         with open(file_path,"r") as f:
             for line in f:
                 reaction = f'R{rcount}'
@@ -68,6 +70,17 @@ class SnippetHighlight(APIView):
         plt.savefig(response)
         return response
 
+
+class ReadReactionFile(APIView):
+    def get(self, request, *args, **kwargs):
+        net = kwargs['pk'].zfill(5)
+        file = 'React_N_Real' + net + '.txt'
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir, file)
+        f = open(file_path, 'r')
+        file_content = f.read()
+        f.close()
+        return HttpResponse(file_content, content_type="text/plain")
 #    def get(self, request, *args, **kwargs):
 #        p = args[0]
 
@@ -79,6 +92,20 @@ class SnippetHighlight(APIView):
 #        'users': reverse('user-list', request=request, format=format),
 #        'snippets': reverse('snippet-list', request=request, format=format)
 #    })
+class NetworkList(generics.ListAPIView):
+    queryset = ReactionNetworks.objects.all()
+    serializer_class = ReactionNetworksSerializer
+
+def read_file(request):
+    f = open('path/text.txt', 'r')
+    file_contents = f.read()
+    print (file_contents)
+    f.close()
+    return render(request, "index.html", context)
+#class NetworkDetail(generics.RetrieveAPIView):
+#    queryset = ReactionNetwork.objects.all()
+#    serializer_class = ReactionNetworkSerializer
+
 
 
 class UserList(generics.ListAPIView):
