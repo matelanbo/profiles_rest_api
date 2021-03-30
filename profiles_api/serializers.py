@@ -8,10 +8,10 @@ class HelloSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile object"""
-
+#    name = serializers.HyperlinkedIdentityField(view_name='profiles_api:image')
     class Meta:
         model = models.UserProfile
-        fields = ('id', 'email', 'name', 'password')
+        fields = ('url', 'id', 'email', 'name', 'password')
         extra_kwargs = {
             'password': {
                 'write_only': True,
@@ -38,10 +38,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class ProfileFeedItemSerializer(serializers.ModelSerializer):
+class ProfileFeedItemSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes profile feed items"""
 
     class Meta:
         model = models.ProfileFeedItem
-        fields = ('id', 'user_profile', 'status_text', 'created_on')
+        fields = ('url', 'id', 'user_profile', 'status_text', 'created_on')
         extra_kwargs = {'user_profile': {'read_only': True}}

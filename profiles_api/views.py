@@ -27,7 +27,8 @@ def gen_mat(request):
     rcount = 1
     species = set()
     react = set()
-
+    module_dir = os.path.dirname(__file__)
+    file_path = os.path.join(module_dir, 'React_N_Real00988.txt')
     with open(file_path,"r") as f:
         for line in f:
             reaction = f'R{rcount}'
@@ -148,6 +149,16 @@ class HelloViewSet(viewsets.ViewSet):
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating profiles"""
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'email',)
+
+
+class UserProfileViewSet2(viewsets.ModelViewSet):
     """Handle creating and updating profiles"""
     serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
